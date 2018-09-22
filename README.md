@@ -1,1 +1,1 @@
-1 - Initial commit. Added dataset, Bootstrap template and index.html.
+1 - Initial commit. Added dataset, Bootstrap template, first bar chart.
