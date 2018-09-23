@@ -1,6 +1,7 @@
 queue()
     .defer(d3.csv, "data/HHSCyberSecurityBreaches.csv")
     .await(makeGraphs);
+    
 
 function makeGraphs(error, securityData) {
     var ndx = crossfilter(securityData);
@@ -13,9 +14,12 @@ function makeGraphs(error, securityData) {
     show_attack_type(ndx);
     show_attack_item(ndx);
     show_type_distribution(ndx);
+    show_average_impact_by_type(ndx);
+    show_average_impact_by_item(ndx);
     
     dc.renderAll();
 }
+
 
 function show_state(ndx) {
     var dim = ndx.dimension(dc.pluck('State'));
@@ -118,4 +122,96 @@ function show_type_distribution(ndx) {
         .xUnits(dc.units.ordinal)
         .legend(dc.legend().x(655).y(20).itemHeight(20).gap(1))
         .margins({top: 10, right: 170, bottom: 30, left: 30});
+}
+
+
+function show_average_impact_by_type(ndx) {
+    var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
+
+    function add_item(p, v) {
+        p.count++;
+        p.total += v.Individuals_Affected;
+        p.average = p.total / p.count;
+        return p;
+    }
+
+    function remove_item(p, v) {
+        p.count--;
+        if(p.count == 0) {
+            p.total = 0;
+            p.average = 0;
+        } else {
+            p.total -= v.Individuals_Affected;
+            p.average = p.total / p.count;
+        }
+        return p;
+    }
+
+    function initialise() {
+        return {count: 0, total: 0, average: 0};
+    }
+
+    var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
+
+    dc.barChart("#average-impact-type")
+        .width(600)
+        .height(300)
+        .margins({top: 10, right: 50, bottom: 30, left: 50})
+        .dimension(dim)
+        .group(averageImpactByType)
+        .valueAccessor(function(d){
+            return d.value.average.toFixed(2);
+        })
+        .transitionDuration(500)
+        .x(d3.scale.ordinal())
+        .xUnits(dc.units.ordinal)
+        .elasticY(true)
+        .xAxisLabel("Breach Type")
+        .yAxis().ticks(4);
+}
+
+
+function show_average_impact_by_item(ndx) {
+    var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
+
+    function add_item(p, v) {
+        p.count++;
+        p.total += v.Individuals_Affected;
+        p.average = p.total / p.count;
+        return p;
+    }
+
+    function remove_item(p, v) {
+        p.count--;
+        if(p.count == 0) {
+            p.total = 0;
+            p.average = 0;
+        } else {
+            p.total -= v.Individuals_Affected;
+            p.average = p.total / p.count;
+        }
+        return p;
+    }
+
+    function initialise() {
+        return {count: 0, total: 0, average: 0};
+    }
+
+    var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
+
+    dc.barChart("#average-impact-item")
+        .width(600)
+        .height(300)
+        .margins({top: 10, right: 50, bottom: 30, left: 50})
+        .dimension(dim)
+        .group(averageImpactByType)
+        .valueAccessor(function(d){
+            return d.value.average.toFixed(2);
+        })
+        .transitionDuration(500)
+        .x(d3.scale.ordinal())
+        .xUnits(dc.units.ordinal)
+        .elasticY(true)
+        .xAxisLabel("Breach Location")
+        .yAxis().ticks(4);
 }
