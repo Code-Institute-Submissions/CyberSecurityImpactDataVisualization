@@ -2,35 +2,37 @@ queue()
     .defer(d3.csv, "data/HHSCyberSecurityBreaches.csv")
     .await(makeGraphs);
 
-
-
 function makeGraphs(error, securityData) {
     var ndx = crossfilter(securityData);
     
-    show_breach_items(ndx)
-    show_breach_types(ndx);
+    securityData.forEach(function(d){
+        d.Individuals_Affected = parseInt(d.Individuals_Affected);
+    })
+    
+    show_state(ndx);
+    show_attack_type(ndx);
+    show_attack_item(ndx);
+    show_type_distribution(ndx);
     
     dc.renderAll();
-    
 }
 
-function show_breach_items(ndx) {
-    dim = ndx.dimension(dc.pluck('Location.of.Breached.Information'));
-    group = dim.group()
+function show_state(ndx) {
+    var dim = ndx.dimension(dc.pluck('State'));
+    var group = dim.group();
     
-    dc.selectMenu("#breach-item")
+    dc.selectMenu("#state-selector")
         .dimension(dim)
         .group(group);
 }
 
 
-function show_breach_types(ndx) {
-    var dim = ndx.dimension(dc.pluck('Type.of.Breach'));
+function show_attack_type(ndx) {
+    var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
     var group = dim.group();
-
     
-    dc.barChart("#breach-types")
-        .width(750)
+    dc.barChart("#attack-type")
+        .width(600)
         .height(300)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
         .dimension(dim)
@@ -39,7 +41,81 @@ function show_breach_types(ndx) {
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
         .xAxisLabel("Types of Breach")
-        .yAxis().ticks(5);
-
+        .yAxis().ticks(20);
 }
 
+function show_attack_item(ndx) {
+    var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
+    var group = dim.group();
+    
+    dc.barChart("#attack-item")
+        .width(600)
+        .height(300)
+        .margins({top: 10, right: 50, bottom: 30, left: 50})
+        .dimension(dim)
+        .group(group)
+        .transitionDuration(500)
+        .x(d3.scale.ordinal())
+        .xUnits(dc.units.ordinal)
+        .xAxisLabel("Location of the Breached Information")
+        .yAxis().ticks(10);
+}
+
+
+
+function show_type_distribution(ndx) {
+    
+    function rankByType(dimension, Type_of_Breach) {
+        return dimension.group().reduce(
+            function (p, v) {
+                p.total++;
+                if(v.Type_of_Breach == Type_of_Breach) {
+                    p.match++;
+                }
+                return p;
+            },
+            function (p, v) {
+                p.total--;
+                if(v.Type_of_Breach == Type_of_Breach) {
+                    p.match--;
+                }
+                return p;
+            },
+            function () {
+                return {total: 0, match: 0};
+            }
+        );
+    }
+
+    var dim = ndx.dimension(dc.pluck("Location_of_Breached_Information"));
+    var theftByType = rankByType(dim, "Theft");
+    var otherByType = rankByType(dim, "Other");
+    var hackingByType = rankByType(dim, "Hacking");
+    var lossByType = rankByType(dim, "Loss");
+    var unauthorizedAccessByType = rankByType(dim, "Unauthorized Access");
+    var unknownByType = rankByType(dim, "Unknown");
+    var improperDisposalByType = rankByType(dim, "Improper Disposal");
+
+    dc.barChart("#type-distribution")
+        .width(800)
+        .height(350)
+        .dimension(dim)
+        .group(theftByType, "Theft")
+        .stack(otherByType, "Other")
+        .stack(hackingByType, "Hacking")
+        .stack(lossByType, "Loss")
+        .stack(unauthorizedAccessByType, "Unauthorized Access")
+        .stack(unknownByType, "Unknown")
+        .stack(improperDisposalByType, "Improper Disposal")
+        .valueAccessor(function(d) {
+            if(d.value.total > 0) {
+                return (d.value.match / d.value.total) * 100;
+            } else {
+                return 0;
+            }
+        })
+        .x(d3.scale.ordinal())
+        .xUnits(dc.units.ordinal)
+        .legend(dc.legend().x(655).y(20).itemHeight(20).gap(1))
+        .margins({top: 10, right: 170, bottom: 30, left: 30});
+}
