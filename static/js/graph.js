@@ -8,17 +8,43 @@ function makeGraphs(error, securityData) {
     
     securityData.forEach(function(d){
         d.Individuals_Affected = parseInt(d.Individuals_Affected);
-    })
+    });
     
     show_state(ndx);
-    show_attack_type(ndx);
-    show_attack_item(ndx);
+    show_attack_type_bar(ndx);
+    show_attack_type_pie(ndx);
+    show_attack_item_bar(ndx);
+    show_attack_item_pie(ndx);
     show_type_distribution(ndx);
     show_average_impact_by_type(ndx);
     show_average_impact_by_item(ndx);
     
     dc.renderAll();
 }
+    
+function rankByType(dimension, Type_of_Breach) {
+    return dimension.group().reduce(
+        function (p, v) {
+            p.total++;
+            if(v.Type_of_Breach == Type_of_Breach) {
+                p.match++;
+            }
+            return p;
+        },
+        function (p, v) {
+            p.total--;
+            if(v.Type_of_Breach == Type_of_Breach) {
+                p.match--;
+            }
+            return p;
+        },
+        function () {
+            return {total: 0, match: 0};
+        }
+    );
+}
+
+
 
 
 function show_state(ndx) {
@@ -31,11 +57,11 @@ function show_state(ndx) {
 }
 
 
-function show_attack_type(ndx) {
+function show_attack_type_bar(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
     var group = dim.group();
     
-    dc.barChart("#attack-type")
+    dc.barChart("#attack-type-bar")
         .width(600)
         .height(300)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
@@ -44,15 +70,31 @@ function show_attack_type(ndx) {
         .transitionDuration(500)
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
-        .xAxisLabel("Types of Breach")
-        .yAxis().ticks(20);
+        .xAxisLabel("Type of Breached Information")
+        .yAxis().ticks(10);
 }
 
-function show_attack_item(ndx) {
+
+
+function show_attack_type_pie(ndx) {
+    var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
+    var group = dim.group();
+    
+    dc.pieChart('#attack-type-pie')
+        .height(330)
+        .radius(90)
+        .transitionDuration(1500)
+        .dimension(dim)
+        .group(group);
+}
+
+
+
+function show_attack_item_bar(ndx) {
     var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
     var group = dim.group();
     
-    dc.barChart("#attack-item")
+    dc.barChart("#attack-item-bar")
         .width(600)
         .height(300)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
@@ -66,31 +108,21 @@ function show_attack_item(ndx) {
 }
 
 
+function show_attack_item_pie(ndx) {
+    var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
+    var group = dim.group();
+    
+    dc.pieChart('#attack-item-pie')
+        .height(330)
+        .radius(90)
+        .transitionDuration(1500)
+        .dimension(dim)
+        .group(group);
+}
+
 
 function show_type_distribution(ndx) {
     
-    function rankByType(dimension, Type_of_Breach) {
-        return dimension.group().reduce(
-            function (p, v) {
-                p.total++;
-                if(v.Type_of_Breach == Type_of_Breach) {
-                    p.match++;
-                }
-                return p;
-            },
-            function (p, v) {
-                p.total--;
-                if(v.Type_of_Breach == Type_of_Breach) {
-                    p.match--;
-                }
-                return p;
-            },
-            function () {
-                return {total: 0, match: 0};
-            }
-        );
-    }
-
     var dim = ndx.dimension(dc.pluck("Location_of_Breached_Information"));
     var theftByType = rankByType(dim, "Theft");
     var otherByType = rankByType(dim, "Other");
@@ -125,32 +157,39 @@ function show_type_distribution(ndx) {
 }
 
 
+// Divides the number of people affected by a type of breach by the number of people affected, to get the average impact
+function add_item(p, v) {
+    p.count++;
+    p.total += v.Individuals_Affected;
+    p.average = p.total / p.count;
+    return p;
+}
+
+
+// Sets the total and average to zero, if the count is zero. Otherwise, calculates the average by subtracting the number of individuals affected from the total, then dividing this by the count.
+function remove_item(p, v) {
+    p.count--;
+    if(p.count == 0) {
+        p.total = 0;
+        p.average = 0;
+    } else {
+        p.total -= v.Individuals_Affected;
+        p.average = p.total / p.count;
+    }
+    return p;
+}
+
+
+// Initialises the count, total and average to zero.
+function initialise() {
+    return {count: 0, total: 0, average: 0};
+}
+
+
+
+
 function show_average_impact_by_type(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
-
-    function add_item(p, v) {
-        p.count++;
-        p.total += v.Individuals_Affected;
-        p.average = p.total / p.count;
-        return p;
-    }
-
-    function remove_item(p, v) {
-        p.count--;
-        if(p.count == 0) {
-            p.total = 0;
-            p.average = 0;
-        } else {
-            p.total -= v.Individuals_Affected;
-            p.average = p.total / p.count;
-        }
-        return p;
-    }
-
-    function initialise() {
-        return {count: 0, total: 0, average: 0};
-    }
-
     var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
 
     dc.barChart("#average-impact-type")
@@ -171,32 +210,12 @@ function show_average_impact_by_type(ndx) {
 }
 
 
+
+
+
+
 function show_average_impact_by_item(ndx) {
     var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
-
-    function add_item(p, v) {
-        p.count++;
-        p.total += v.Individuals_Affected;
-        p.average = p.total / p.count;
-        return p;
-    }
-
-    function remove_item(p, v) {
-        p.count--;
-        if(p.count == 0) {
-            p.total = 0;
-            p.average = 0;
-        } else {
-            p.total -= v.Individuals_Affected;
-            p.average = p.total / p.count;
-        }
-        return p;
-    }
-
-    function initialise() {
-        return {count: 0, total: 0, average: 0};
-    }
-
     var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
 
     dc.barChart("#average-impact-item")
