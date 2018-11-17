@@ -1,8 +1,10 @@
+// Loads data
 queue()
     .defer(d3.csv, "data/HHSCyberSecurityBreaches.csv")
     .await(makeGraphs);
     
 
+// Makes the graphs
 function makeGraphs(error, securityData) {
     var ndx = crossfilter(securityData);
     
@@ -11,17 +13,24 @@ function makeGraphs(error, securityData) {
     });
     
     show_state(ndx);
+    
     show_attack_type_bar(ndx);
     show_attack_type_pie(ndx);
+    
     show_attack_item_bar(ndx);
     show_attack_item_pie(ndx);
+    
     show_type_distribution(ndx);
+    
     show_average_impact_by_type(ndx);
     show_average_impact_by_item(ndx);
+    show_people_impacted_pie(ndx);
     
     dc.renderAll();
 }
-    
+
+
+// Counts the total number of each type of breach
 function rankByType(dimension, Type_of_Breach) {
     return dimension.group().reduce(
         function (p, v) {
@@ -45,8 +54,7 @@ function rankByType(dimension, Type_of_Breach) {
 }
 
 
-
-
+// Allows the user to sort the data and change the graphs depending on the state the breach occured in
 function show_state(ndx) {
     var dim = ndx.dimension(dc.pluck('State'));
     var group = dim.group();
@@ -57,12 +65,13 @@ function show_state(ndx) {
 }
 
 
+// Bar chart showing the number of reports of each type of breach
 function show_attack_type_bar(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
     var group = dim.group();
     
     dc.barChart("#attack-type-bar")
-        .width(600)
+        .width(725)
         .height(300)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
         .dimension(dim)
@@ -70,12 +79,13 @@ function show_attack_type_bar(ndx) {
         .transitionDuration(500)
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
-        .xAxisLabel("Type of Breached Information")
-        .yAxis().ticks(10);
+        .xAxisLabel("Type of Breach")
+        .yAxisLabel("Number of Reports");
 }
 
 
 
+// Pie chart showing the number of reports of each type of breach
 function show_attack_type_pie(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
     var group = dim.group();
@@ -90,12 +100,13 @@ function show_attack_type_pie(ndx) {
 
 
 
+// Bar chart showing the number of reports of each breached item
 function show_attack_item_bar(ndx) {
     var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
     var group = dim.group();
     
     dc.barChart("#attack-item-bar")
-        .width(600)
+        .width(725)
         .height(300)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
         .dimension(dim)
@@ -103,11 +114,12 @@ function show_attack_item_bar(ndx) {
         .transitionDuration(500)
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
-        .xAxisLabel("Location of the Breached Information")
-        .yAxis().ticks(10);
+        .xAxisLabel("Origin of the Breached Information")
+        .yAxisLabel("Number of Reports");
 }
 
 
+// Pie chart showing the number of reports of each breached item
 function show_attack_item_pie(ndx) {
     var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
     var group = dim.group();
@@ -121,8 +133,8 @@ function show_attack_item_pie(ndx) {
 }
 
 
+// Bar chart showing how each item has been breached
 function show_type_distribution(ndx) {
-    
     var dim = ndx.dimension(dc.pluck("Location_of_Breached_Information"));
     var theftByType = rankByType(dim, "Theft");
     var otherByType = rankByType(dim, "Other");
@@ -133,7 +145,7 @@ function show_type_distribution(ndx) {
     var improperDisposalByType = rankByType(dim, "Improper Disposal");
 
     dc.barChart("#type-distribution")
-        .width(800)
+        .width(950)
         .height(350)
         .dimension(dim)
         .group(theftByType, "Theft")
@@ -152,7 +164,7 @@ function show_type_distribution(ndx) {
         })
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
-        .legend(dc.legend().x(655).y(20).itemHeight(20).gap(1))
+        .legend(dc.legend().x(805).y(20).itemHeight(20).gap(1))
         .margins({top: 10, right: 170, bottom: 30, left: 30});
 }
 
@@ -186,15 +198,14 @@ function initialise() {
 }
 
 
-
-
+// Barchart showing the average number of people impacted by each type of breach
 function show_average_impact_by_type(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
     var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
 
     dc.barChart("#average-impact-type")
-        .width(600)
-        .height(300)
+        .width(725)
+        .height(200)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
         .dimension(dim)
         .group(averageImpactByType)
@@ -205,25 +216,21 @@ function show_average_impact_by_type(ndx) {
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
         .elasticY(true)
-        .xAxisLabel("Breach Type")
-        .yAxis().ticks(4);
+        .yAxisLabel("Average Impact");
 }
 
 
-
-
-
-
+// Barchart showing the average number of people impacted by the location of breached information
 function show_average_impact_by_item(ndx) {
     var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
-    var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
+    var averageImpactByItem = dim.group().reduce(add_item, remove_item, initialise);
 
     dc.barChart("#average-impact-item")
-        .width(600)
-        .height(300)
+        .width(725)
+        .height(200)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
         .dimension(dim)
-        .group(averageImpactByType)
+        .group(averageImpactByItem)
         .valueAccessor(function(d){
             return d.value.average.toFixed(2);
         })
@@ -231,6 +238,23 @@ function show_average_impact_by_item(ndx) {
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
         .elasticY(true)
-        .xAxisLabel("Breach Location")
-        .yAxis().ticks(4);
+        .yAxisLabel("Average Impact");
+}
+
+
+// Pie chart showing the number of people affected by types of breach
+function show_people_impacted_pie(ndx) {
+    var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
+    var averageImpactByType = dim.group().reduce(add_item, remove_item, initialise);
+
+    
+    dc.pieChart('#people-impacted')
+        .height(400)
+        .radius(200)
+        .transitionDuration(1500)
+        .dimension(dim)
+        .group(averageImpactByType)
+        .valueAccessor(function(d){
+            return d.value.average.toFixed(2);
+        });
 }
