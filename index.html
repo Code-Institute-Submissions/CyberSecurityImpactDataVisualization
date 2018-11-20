@@ -19,114 +19,125 @@
     <script type="text/javascript" src="static/js/graph.js"></script>
 </head>
 <body>
+    <nav>
+    <!--Page title-->
+    <h1 class="text-center">Cyber Security Breaches and their Impact</h1>
+    </nav>
     
-    
-    <div class="containter-fluid">
-        <div class="row">
-            
-            <!--Page title-->
-            <div class="col-12">
-                <h1 class="text-center">Cyber Security Breaches and their Impact</h1>
-                
+    <section class="section">
+        <div class="containter-fluid">
+            <div class="row">
                 <!--Introducion blurb-->
+                <div class="col-12">
                 <p class="text-center">Analysis of data from cyber security breaches within the US Department of Health and Human Services, between 2009 and 2015.</p>
+                </div>
+            </div>
+            
+            <!--Allows data to be sorted by state-->
+            <div class="row">
+                <div class="col-s-12 col-md-6 col-lg-2 text-custom">
+                    <span>Sort by state:</span>
+                </div>
+                <div class="col-s-12 col-md-6 col-lg-2">
+                    <div id="state-selector"></div>
+                </div>
+                <div class="col-s-12 col-md-6 col-lg-2 text-custom">
+                    <span>Sort by type:</span>
+                </div>
+                <div class="col-s-12 col-md-6 col-lg-2">
+                    <div id="type-selector"></div>
+                </div>
+                <div class="col-s-12 col-md-6 col-lg-2 text-custom">
+                    <span>Sort by origin:</span>
+                </div>
+                <div class="col-s-12 col-md-6 col-lg-2">
+                    <div id="location-selector"></div>
+                </div>
             </div>
         </div>
+    </section>
         
-        <!--Allows data to be sorted by state-->
-        <div class="row">
-            <div class="col-4">
+    <section class="section">
+        <div class="container-fluid">
+            <!--Renders graphs from graph.js to their own divs-->
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <div id="attack-type-bar"></div>
+                </div>
+                <div class="col-md-5 col-lg-3">
+                    <div id="attack-type-pie"></div>
+                </div>
+                <div class="col-md-7 col-lg-3 blurb">
+                    <p>
+                        <span class="large-text">1 in 2</span> reported cases were theft making it by far, the leading type of attack.
+                    <p>
+                        <span class="large-text">16%</span> of reported cases were unauthorised access, therefore improvements to on-site security may reduce the second leading type of attack.
+                    </p>
+                    <p>
+                        <span class="large-text">10</span> reported cases were of an unknown origin, suggesting that investigation methods are effective the majority of cases.
+                    </p>
+                </div>
             </div>
-            <div class="col-2 text-right">
-                <span>Sort by state:</span>
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <div id="attack-item-bar"></div>
+                </div>
+                <div class="col-md-5 col-lg-3">
+                    <div id="attack-item-pie"></div>
+                </div>
+                <div class="col-md-7 col-lg-3 blurb">
+                    <p>
+                        <span class="large-text">1 in 10</span> cases involved breached portable devices, which could be reduced with reviewed policy regarding useage of company devices.
+                    </p>
+                    <p>
+                        <span class="large-text">22%</span> of security breaches were via. paper and films, suggesting electronic items are not the primary target.
+                    </p>
+                    <p>
+                        <span class="large-text">43</span> reported breaches were of medical records, making them the most secure location of information.
+                    </p>
+                </div>
             </div>
-            <div class="col-2">
-                <div id="state-selector"></div>
+            <div class="row">
+                <div class="col-md-12 col-lg-9">
+                    <div id="type-distribution"></div>
+                </div>
+                <div class="col-md-7 col-lg-3 blurb">
+                    <p>
+                        <span class="large-text">9 in 10</span> reported cases involving laptops are lost, indicating this is a staff issue and the breaches are not pre-meditated.
+                    </p>
+                    <p>
+                        <span class="large-text">44%</span> of reported cases involving breached servers are hacked, suggesting the technology needs to be improved.
+                    </p>
+                    <p>
+                        <span class="large-text">0</span> cases of hacked portable devices or laptops have been reported, so either these items are not targeted or the technology is secure.
+                    </p>
+                </div>
             </div>
-            <div class="col-4">
-            </div>
-        </div>
-
-        <!--Renders graphs from graph.js to their own divs-->
-        <div class="row">
-            <div class="col-md-12 col-lg-6">
-                <div id="attack-type-bar"></div>
-            </div>
-            <div class="col-md-5 col-lg-3">
-                <div id="attack-type-pie"></div>
-            </div>
-            <div class="col-md-7 col-lg-3 blurb">
-                <p>
-                    <span class="large-text">1 in 2</span> reported cases were theft making it by far, the leading type of attack.
-                <p>
-                    <span class="large-text">16%</span> of reported cases were unauthorised access, therefore improvements to on-site security may reduce the second leading type of attack.
-                </p>
-                <p>
-                    <span class="large-text">10</span> reported cases were of an unknown origin, suggesting that investigation methods are effective the majority of cases.
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 col-lg-6">
-                <div id="attack-item-bar"></div>
-            </div>
-            <div class="col-md-5 col-lg-3">
-                <div id="attack-item-pie"></div>
-            </div>
-            <div class="col-md-7 col-lg-3 blurb">
-                <p>
-                    <span class="large-text">1 in 10</span> cases involved breached portable devices, which could be reduced with reviewed policy regarding useage of company devices.
-                </p>
-                <p>
-                    <span class="large-text">22%</span> of security breaches were via. paper and films, suggesting electronic items are not the primary target.
-                </p>
-                <p>
-                    <span class="large-text">43</span> reported breaches were of medical records, making them the most secure location of information.
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 col-lg-9">
-                <div id="type-distribution"></div>
-            </div>
-            <div class="col-md-7 col-lg-3 blurb">
-                <p>
-                    <span class="large-text">9 in 10</span> reported cases involving laptops are lost, indicating this is a staff issue and the breaches are not pre-meditated.
-                </p>
-                <p>
-                    <span class="large-text">44%</span> of reported cases involving breached servers are hacked, suggesting the technology needs to be improved.
-                </p>
-                <p>
-                    <span class="large-text">0</span> cases of hacked portable devices or laptops have been reported, so either these items are not targeted or the technology is secure.
-                </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 col-lg-6">
-                <div id="average-impact-type"></div>
-                <div id="average-impact-item"></div>
-            </div>
-            <div class="col-md-12 col-lg-3">
-                <div id="people-impacted"></div>
-            </div>
-            <div class="col-md-7 col-lg-3 blurb">
-                <p>
-                    <span class="large-text">319,240 people</span> have been impacted by leaked information from HHS alone, between 2009 and 2015.
-                </p>
-                <p>
-                    <span class="large-text">Nearly 1 in 2</span> of those people were impacted by a leak of unknown origin, suggesting that some cybercriminal's technology is complex and currently undetectable.
-                </p>
-                <p>
-                    <span class="large-text">76,208</span> people are affected, on average, by every successful attack on a server. This is the item that has the most impact on people when attacked.
-                </p>
-                <p>
-                    <span class="large-text">0</span> reported cases of unknown origin occurred in California, despite this being the state with the most reported breaches.
-                </p>
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <div id="average-impact-type"></div>
+                    <div id="average-impact-item"></div>
+                </div>
+                <div class="col-md-12 col-lg-3">
+                    <div id="people-impacted"></div>
+                </div>
+                <div class="col-md-7 col-lg-3 blurb">
+                    <p>
+                        <span class="large-text">76,208</span> people are affected, on average, by every successful attack on a server. This is the item that has the most impact on people when attacked.
+                    </p>
+                    <p>
+                        <span class="large-text">Nearly 1 in 2</span> of those people were impacted by a leak of unknown origin, suggesting that the most effective cybercriminal's technology is complex and currently undetectable.
+                    </p>
+                    <p>
+                       <span class="large-text">319,240 people</span> have been impacted by leaked information from HHS alone, between 2009 and 2015. 
+                    </p>
+                    <p>
+                        <span class="large-text">0</span> reported cases of unknown origin occurred in California, despite this being the state with the most reported breaches in total.
+                    </p>
+                </div>
             </div>
         </div>
-        
-    </div>
-
+    </section>
     
 </body>
 </html>

@@ -1,10 +1,10 @@
-// Loads data
+// Loads data from .csv file
 queue()
     .defer(d3.csv, "data/HHSCyberSecurityBreaches.csv")
     .await(makeGraphs);
     
 
-// Makes the graphs
+// Makes the graphs from the functions below
 function makeGraphs(error, securityData) {
     var ndx = crossfilter(securityData);
     
@@ -13,6 +13,8 @@ function makeGraphs(error, securityData) {
     });
     
     show_state(ndx);
+    show_type(ndx);
+    show_location(ndx);
     
     show_attack_type_bar(ndx);
     show_attack_type_pie(ndx);
@@ -65,6 +67,28 @@ function show_state(ndx) {
 }
 
 
+// Allows the user to sort the data and change the graphs depending on the type of breach
+function show_type(ndx) {
+    var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
+    var group = dim.group();
+    
+    dc.selectMenu("#type-selector")
+        .dimension(dim)
+        .group(group);
+}
+
+
+// Allows the user to sort the data and change the graphs depending on the location of the breach
+function show_location(ndx) {
+    var dim = ndx.dimension(dc.pluck('Location_of_Breached_Information'));
+    var group = dim.group();
+    
+    dc.selectMenu("#location-selector")
+        .dimension(dim)
+        .group(group);
+}
+
+
 // Bar chart showing the number of reports of each type of breach
 function show_attack_type_bar(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
@@ -84,7 +108,6 @@ function show_attack_type_bar(ndx) {
 }
 
 
-
 // Pie chart showing the number of reports of each type of breach
 function show_attack_type_pie(ndx) {
     var dim = ndx.dimension(dc.pluck('Type_of_Breach'));
@@ -97,7 +120,6 @@ function show_attack_type_pie(ndx) {
         .dimension(dim)
         .group(group);
 }
-
 
 
 // Bar chart showing the number of reports of each breached item
@@ -169,7 +191,7 @@ function show_type_distribution(ndx) {
 }
 
 
-// Divides the number of people affected by a type of breach by the number of people affected, to get the average impact
+// Adds the item to the graph, for example, when p = 1 this would correspond to the first report in the data. Then the function counts through the data calculating the average number of people affected by each instance.
 function add_item(p, v) {
     p.count++;
     p.total += v.Individuals_Affected;
@@ -178,7 +200,7 @@ function add_item(p, v) {
 }
 
 
-// Sets the total and average to zero, if the count is zero. Otherwise, calculates the average by subtracting the number of individuals affected from the total, then dividing this by the count.
+// Sets the total and average to zero, if the count is zero. Otherwise, calculates the average by subtracting the number of individuals affected from the total, then dividing this by the count. 
 function remove_item(p, v) {
     p.count--;
     if(p.count == 0) {
@@ -216,7 +238,8 @@ function show_average_impact_by_type(ndx) {
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
         .elasticY(true)
-        .yAxisLabel("Average Impact");
+        .xAxisLabel("Each attack")
+        .yAxisLabel("Average people affected");
 }
 
 
@@ -238,7 +261,8 @@ function show_average_impact_by_item(ndx) {
         .x(d3.scale.ordinal())
         .xUnits(dc.units.ordinal)
         .elasticY(true)
-        .yAxisLabel("Average Impact");
+        .xAxisLabel("Each attack")
+        .yAxisLabel("Average people affected");
 }
 
 
@@ -249,8 +273,8 @@ function show_people_impacted_pie(ndx) {
 
     
     dc.pieChart('#people-impacted')
-        .height(400)
-        .radius(200)
+        .height(330)
+        .radius(90)
         .transitionDuration(1500)
         .dimension(dim)
         .group(averageImpactByType)

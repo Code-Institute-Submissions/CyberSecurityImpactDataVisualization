@@ -9,10 +9,6 @@ body {
     text-align: center;
 }
 
-.text-right {
-    text-align: right;
-}
-
 .large-text {
     font-size: 1.87rem;
     font-weight: bold;
@@ -28,4 +24,29 @@ body {
 .row {
     padding: 5px;
     margin: 5px;
+}
+
+/*Media queries*/
+
+
+@media all and (min-width: 960px) {
+    /* For laptops and desktops: */
+    .text-custom {
+        text-align: right;
+    }
+}
+
+@media all and (max-width: 959px) and (min-width: 600px) {
+    /* For talbets: */
+    .text-custom {
+        text-align: right;
+    }
+}
+
+@media all and (max-width: 599px) and (min-width: 100px) {
+    /* For mobile phones: */
+    
+    .text-custom {
+        text-align: center;
+    }
 }
